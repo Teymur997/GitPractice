@@ -34,10 +34,12 @@ public class TextHandling {
             double length = strings.length;
             TreeMap<String, Integer> vocabulary = new TreeMap<>();
             for (int i = 0; i < strings.length; i++) {
-                if (vocabulary.containsKey(strings[i])) {
-                    vocabulary.replace(strings[i], vocabulary.get(strings[i]), vocabulary.get(strings[i])+1);
-                } else {
-                    vocabulary.put(strings[i], 1);
+                if (!strings[i].isEmpty()) {
+                    if (vocabulary.containsKey(strings[i])) {
+                        vocabulary.replace(strings[i], vocabulary.get(strings[i]), vocabulary.get(strings[i])+1);
+                    } else {
+                        vocabulary.put(strings[i], 1);
+                    }
                 }
             }
             System.out.println("Вывод слов, их количества и процентного содержания в тексте:");
