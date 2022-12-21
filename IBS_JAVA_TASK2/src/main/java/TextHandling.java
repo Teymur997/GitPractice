@@ -20,6 +20,11 @@ public class TextHandling {
         try {
             bfReader = new BufferedReader(new FileReader(txt));
             strings = bfReader.lines().collect(Collectors.joining())
+                    .replaceAll("-", " ")
+                    .replaceAll("«", " ")
+                    .replaceAll("»", " ")
+                    .replaceAll("  ", ".")
+                    .replaceAll("№", "")
                     .replaceAll("\\p{Punct}", "")
                     .replaceAll("\\d", "")
                     .toLowerCase().split("\\s");
@@ -42,16 +47,20 @@ public class TextHandling {
                     }
                 }
             }
-            System.out.println("Вывод слов, их количества и процентного содержания в тексте:");
-            vocabulary.entrySet().stream().
-                    map(s -> String.format("Слово: %s, Количество: %d,  Частота: %.2f%%",
-                            s.getKey(), s.getValue(), s.getValue().doubleValue()*100L/length))
-                    .forEach(System.out::println);
+            if (!vocabulary.isEmpty()) {
+                System.out.println("Вывод слов, их количества и процентного содержания в тексте:");
+                vocabulary.entrySet().stream().
+                        map(s -> String.format("Слово: %s, Количество: %d,  Частота: %.2f%%",
+                                s.getKey(), s.getValue(), s.getValue().doubleValue()*100L/length))
+                        .forEach(System.out::println);
 
-            System.out.println("\nВывод слов, чаще всего встречающихся в тексте:");
-            vocabulary.entrySet().stream()
-                    .filter(s -> s.getValue().equals(vocabulary.entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue()))
-                    .forEach(System.out::println);
+                System.out.println("\nВывод слов, чаще всего встречающихся в тексте:");
+                vocabulary.entrySet().stream()
+                        .filter(s -> s.getValue().equals(vocabulary.entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue()))
+                        .forEach(System.out::println);
+            } else {
+                System.out.println("Входящий массив не содержит слов!");
+            }
         } else {
             System.out.println("Входящий массив строк пуст!");
         }
