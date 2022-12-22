@@ -26,7 +26,7 @@ public class TextHandling {
                     .replaceAll("  ", ".")
                     .replaceAll("№", "")
                     .replaceAll("\\p{Punct}", "")
-                    .replaceAll("\\d", "")
+                    .replaceAll("\\d", " ")
                     .toLowerCase().split("\\s");
         } catch (IOException e) {
             System.out.println("Файл не найден! Укажите верный путь");
