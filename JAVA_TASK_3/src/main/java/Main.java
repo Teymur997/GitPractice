@@ -10,11 +10,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 
 public class Main {
@@ -33,29 +31,30 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        ObjectMapper mapper = new ObjectMapper();
         String data = new String(Files.readAllBytes(Paths.get("C:\\Users\\teymu\\IdeaProjects\\JAVA_TASK_3\\src\\main\\java\\JSON")));
+        ObjectMapper mapper = new ObjectMapper();
         JsonFactory factory = new JsonFactory();
         JsonParser parser = factory.createParser(get(data));
         Companies companies = mapper.readValue(get(data), Companies.class);
 
         System.out.println("Задание №1");
         companies.getCompanies().stream()
-                .map(s -> s.getName() + " |" + convertToLocalDate(s.getFounded())
+                .map(s -> s.getName().substring(0, 3) + " - " + convertToLocalDate(s.getFounded())
                         .format(DateTimeFormatter.ofPattern("dd/MM/yy")))
                 .forEach(System.out::println);
 
+
         System.out.println("Задание №2");
         LocalDate date = LocalDate.now();
-        System.out.println("Акции, просроченные на текущий день: " + companies.getCompanies().stream().map(a -> a.getSecurities())
-                .flatMap(b -> b.stream())
-                .filter(g -> convertToLocalDate(g.getDate()).isBefore(date))
-                .map(d -> "\n" + d.getName() + " " + d.getCode() + " " + convertToLocalDate(d.getDate()).
-                        format(DateTimeFormatter.ofPattern("dd/MM/yy")))
-                .collect(Collectors.toList()));
+        System.out.println("Акции, просроченные на текущий день: " + companies.getCompanies().stream()
+                .map(a -> "\n" + "Компания-владелец: " + a.getName() + a.getSecurities().stream()
+                        .filter(g -> convertToLocalDate(g.getDate()).isBefore(date))
+                        .map(d -> "\n" + "Акция компании: " + d.getName() + ", Код: " + d.getCode() + ", Дата истечения: " + convertToLocalDate(d.getDate()).
+                                format(DateTimeFormatter.ofPattern("dd/MM/yy"))).toList()).toList().toString()
+        );
 
-        System.out.println("Общее количество: " + companies.getCompanies().stream().map(a -> a.getSecurities())
-                .flatMap(b -> b.stream())
+        System.out.println("\nОбщее количество просроченных акций: " + companies.getCompanies().stream().map(Company::getSecurities)
+                .flatMap(Collection::stream)
                 .filter(g -> convertToLocalDate(g.getDate()).isBefore(date))
                 .map(d -> d.getName() + " " + convertToLocalDate(d.getDate()).format(DateTimeFormatter.ofPattern("dd/MM/yy")))
                 .count());
@@ -83,13 +82,13 @@ public class Main {
 
         companies.getCompanies().stream()
                 .filter(a -> convertToLocalDate(a.getFounded()).isAfter(inputLocalDate))
-                .map(s -> s.getName() + " " + convertToLocalDate(s.getFounded()).format(DateTimeFormatter.ofPattern("dd/MM/yy")))
+                .map(s -> "Название компании: " + s.getName() + "   Дата создания: " + convertToLocalDate(s.getFounded()).format(DateTimeFormatter.ofPattern("dd/MM/yy")))
                 .forEach(System.out::println);
 
         System.out.println("Задание №4");
         System.out.println("Введите одну из валют (EU, USD, RUB):");
         Scanner input = new Scanner(System.in);
-        String currency = input.nextLine();
+        String currency = input.nextLine().toUpperCase();
         switch (String.valueOf(input)) {
             case "EU":
                 currency = "EU";
@@ -99,11 +98,12 @@ public class Main {
                 currency = "USD";
         }
         String finalCurrency = currency;
-        System.out.println(companies.getCompanies().stream()
-                .map(a -> a.getSecurities())
-                .flatMap(b -> b.stream())
-                .map(g -> "\n" + g.getName() + " " + g.getCode() + " " + g.getCurrency().toString())
-                .filter(s -> s.contains(finalCurrency))
-                .collect(Collectors.toList()));
+
+        companies.getCompanies().stream()
+                .map(s -> "\n" + "id Компании-владельца: " + s.getId() + " " +
+                        s.getSecurities().stream()
+                                .filter(f -> f.getCurrency().contains(finalCurrency))
+                                .map(f -> "\n" + "Код акции: " + f.getCode()).toList()).toList()
+                .forEach(System.out::println);
     }
 }
